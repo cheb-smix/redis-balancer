@@ -23,7 +23,7 @@
 ### Properties description
 Name | Access Modifier | Available Values and Description
 ----------------|---------|--------------------|----------------------
-queueMode | public | `true` - servers array shuffle and getting cache until successful attempt (by default)\n`false` - getting cache from random server |
+queueMode | public | `true` - servers array shuffle and getting cache until successful attempt (by default)\n`false` - getting cache from random server
 lockTime | public | `>0` - will lock the key for specified number of seconds. Get-commands in a queueMode will recieve data from other servers, if mutexMode is turned off. Key will be unlocked after specified number of seconds, if the request initiator won't handle the key update (by default)\n`0` - do not lock keys (not recommended)
 mutexMode | public | `true` - flush, set, del, lock commands executing on all servers, first get-command locks the key on all servers, other get-requests are waiting for the first updates the key (not recommended) \n`false` - flushdb will be executed only on first server, first get-command locks the key on first server, other get-requests are getting it from other servers (if it is no such key there, they wait until the first request finished the update). If there is only one server in array, this feature will not work.
 interval | public | `>0` - (>300 recomended) key lock recheck interval
