@@ -6,7 +6,7 @@
 [
     'components' => [
         'cache' => [
-            'class' => 'СhebSmix\RedisBalancer',
+            'class' => 'СhebSmix\RedisBalancer\RedisBalancer',
             'queueMode' => true,
             'lockTime' => 10,
             'interval' => 700,
