@@ -1,11 +1,14 @@
 # RedisBalancer
 ## Yii2 async caching component for more then one redis server, which increases cache availability to ~99.99%
+
+### Yii2 config example
+```php
 [
     'components' => [
         'cache' => [
-            'class' => 'common\components\RedisBalancer',
+            'class' => 'СhebSmix\RedisBalancer',
             'queueMode' => true,
-            'lockTime' => 5,
+            'lockTime' => 10,
             'interval' => 700,
             'servers' => [
                 [ 'hostname' => 'localhost',    'port' => 6379, 'database' => 0 ],
@@ -15,33 +18,19 @@
         ],
     ],
 ]
+```
 
-// true - перемешивание массива серверов и получение значения в цикле до успешной попытки
-    // false - получение значения с рандомного сервера (дефолт)
-    public $queueMode = false;
-    
-    // вызов метода lock($key) производится вручную в скрипте
-    // > 0 - лочить сеты, ждать анлока в гетах на указанное количество времени в секундах максимум (по истечении его, автоанлок)
-    // 0 - забить на все
-    public $lockTime = 30;
-    
-    // true - флаши, сеты, дели, локи происходит на всех базах, первый гет лочит значение на всех серверах, остальные геты ждут, пока первый закончит сет на все сервера
-    // false - флаш происходит только на первом серваке (будем считать что это мастер или сервер меток), первый гет лочит значение на первом серваке, остальные геты пытаются получить значение с остальных серваков (в случае неудачи - ждут, пока первый закончит сет на все серваки), удаление также происходит на всех серваках. Фича может работать при наличии более одного сервера, иначе работать будет в обычном режиме мутекса.
-    public $mutexMode = false;
-    
-
-    // интервал перепроверок лока в миллисекундах
-    public $interval = 500;
-    // сервера редиски
-    public $servers = [];
-
-
-    // перемешанный массив ключей массива серверов
-    private $shuffledKeys = [];
-    // метка перемешанности (просто $shuffledKeys может оказаться пустым, поэтому за метку не сойдет)
-    private $shuffled = false;
-    // выбранный источник для гет запросов (может меняться в процессе выполнения скрипта), переменная чисто для справки
-    private $source = "";
-
-    // массив залоченных текущим клиентом ключей
-    private $lockedValues = [];
+### Properties description
+| Name | Access Modifier | Available Values and Description |
+| queueMode | public | `true` - servers array shuffle and getting cache until successful attempt (by default)
+`false` - getting cache from random server |
+| lockTime | public | `>0` - will lock the key for specified number of seconds. Get-commands in a queueMode will recieve data from other servers, if mutexMode is turned off. Key will be unlocked after specified number of seconds, if the request initiator won't handle the key update (by default)
+`0` - do not lock keys (not recommended) |
+| mutexMode | public | `true` - flush, set, del, lock commands executing on all servers, first get-command locks the key on all servers, other get-requests are waiting for the first updates the key (not recommended) 
+`false` - flushdb will be executed only on first server, first get-command locks the key on first server, other get-requests are getting it from other servers (if it is no such key there, they wait until the first request finished the update). If there is only one server in array, this feature will not work. |
+| interval | public | `>0` - (>300 recomended) key lock recheck interval |
+| servers | public | `[]` - redis servers list |
+| shuffledKeys | private | Shuffled servers keys array |
+| shuffled | private | Shuffled servers array flag |
+| source | private | Taken get-request source (debug-info) |
+| lockedValues | private | List of keys locked by current request |
